@@ -94,6 +94,8 @@ const main = async () => {
   }
 
   let $ = cheerio.load(content);
+  $('style').remove();
+  $('script').remove();
   $('*').each((i, e) => {
     const allAttributes = e.attribs;
     e.attribs = {};
@@ -104,6 +106,7 @@ const main = async () => {
       e.attribs['class'] = allAttributes.class;
     }
   });
+  // console.log($.html());
   console.log((await askGPT($.html())).choices[0].message.content);
 
 };
