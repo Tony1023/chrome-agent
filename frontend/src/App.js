@@ -4,7 +4,7 @@ import './App.css';
 
 const WS_URL = "ws://127.0.0.1:7999"
 
-export default () => {
+const App = () => {
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
     WS_URL,
     {
@@ -16,20 +16,12 @@ export default () => {
   const [instruction, setInstruction] = useState();
 
   useEffect(() => {
-    let json;
     try {
-      json = JSON.parse(lastJsonMessage);
+      const htmlContent = lastJsonMessage.html ?? '';
+      setBrowserContent(htmlContent);
     } catch (e) {
       console.log(e);
     }
-    console.log(lastJsonMessage);
-
-    setBrowserContent(`
-<html><body>
-${lastJsonMessage}
-</body></html>
-    `);
-
   }, [lastJsonMessage]);
 
   const instruct = (e) => {
@@ -53,3 +45,5 @@ ${lastJsonMessage}
     </>
   );
 };
+
+export default App;
