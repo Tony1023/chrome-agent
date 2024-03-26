@@ -4,27 +4,29 @@ const puppeteer = require('puppeteer');
 
 let clients = {};
 
-wss.on('connection', async (ws) => {
+wss.on('connection', (ws) => {
   const id = Math.floor(Math.random() * 360);
   const metadata = { id };
 
-  let browser = await puppeteer.launch({ headless: 'new' });
-  let page = await browser.newPage();
-  clients[ws] = { metadata, browser, page };
+  clients[ws] = { metadata };
+  puppeteer.launch({ headless: 'new' }).then((b) => {
+    clients[ws].browser = b;
+    clients[ws].page = b.newPage();
+  });
 
   ws.on('message', async (message) => {
     try {
-      let instruction;
-      instruction = JSON.parse(message).instruction;
+      const instruction = JSON.parse(message).instruction;
       console.log(instruction);
+      const page = await clients[ws].page;
       await page.goto(`https://${instruction}`);
-      await page.waitForNavigation({ waituntil: 'domcontentloaded' });
+      // await page.waitForNavigation({ waituntil: 'domcontentloaded' });
       const html = await page.content();
       console.log(html);
       ws.send(JSON.stringify({ html: html }));
     } catch (e) {
       console.log(e);
-      ws.send(JSON.stringify({ html: 'Sorry something went wrong. '}));
+      ws.send(JSON.stringify({ html: 'Sorry something went wrong. ' }));
     }
   });
 
